@@ -1,0 +1,6 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+pieces25.R
+36.csv
+72.csv
+TODO.txt

@@ -1,0 +1,159 @@
+---
+title: "EternityII Puzzle"
+author: "gCoo"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+EternityII puzzle is an edge-matching puzzle. The orginal game consist 256 pieces with 4 different symbols on edges. You need to place all pieces on a board 16 by 16 in order that all adjacent edges match. There is 22 different symbols and one additional grey symbol to mark the border.  
+[https://en.wikipedia.org/wiki/Eternity_II_puzzle](https://en.wikipedia.org/wiki/Eternity_II_puzzle)
+
+This package contains data sets with orginal `pieces256`, first clue `pieces36` and second clue `pieces72`. There is also a set `piece25` to present (and test) the idea of the brute-force type algorithm.
+
+**Note:** `pieces72` by design were created for non-squared board. The solution creates board 6 by 12. The algorithm in this package was desgined for squared puzzle only. Feel free to change available code to develop changes for non-squared puzzle.
+
+## The Puzzle
+
+**Note:** The possibilities of this package will be presented on the test `pieces25`. 
+
+Fields of the board are numbered from 1 to 25 by column (see schema for `pieces25` below). There are 9 middle pieces, 12 border pieces and 4 corners pieces.  
+
+```{r, echo=FALSE, results='asis', message=FALSE}
+library(EternityII)
+
+board <- data.table(matrix(1:25, 5, 5))
+setnames(board, names(board), LETTERS[1:5])
+
+knitr::kable(board)
+```
+
+The first step is to initiate puzzle structures by calling `init25` function (with default parameters initial piece and all three tips will be added, see `help("init25")` for details). 
+
+```{r}
+init25()
+```
+
+This function creates or loads (if available) puzzle structures:
+
+* `pieces` structure with info about pieces, their edges, present rotation (0 - no rotation, 1 - 90 degree, 2 - 180 degree, 3 - 270 degree) and type (1 - middle, 2 - border, 3 - corner),
+
+* `moves` structure with info about pieces on the board: on which field is placed, rotation, number of move,
+
+* `usedEdges` structure with info about available edges (details willl be given further),
+
+* `path` vector with fields numbers of the board in order in which pieces will be added to the board,
+
+* `moveNumber` present move.  
+
+```{r}
+# data.table
+head(pieces, 1)
+
+# data.table
+head(moves, 1)
+
+# data.table
+head(usedEdges)
+
+# vector 
+path
+
+# integer
+moveNumber
+```
+ 
+The brute-force type idea is to check every possible move (backtracking algorithm). It can be represented as a tree with multiple branches. Each node have exactly as many branches as number of possible moves (number of unused pieces which match the present field). If the algorithm gets to the node (not the last one) without any branches, it makes step back and chooses another move from the pool. The last node do not have branches and in the worst case scenario the longest branch (with length equal to number of pieces) is unique. The task is to find the longest branch. The brute-force algorithm is visting all branches till it finds the longest one.
+
+There is no need nor possibility to build whole tree (for 256 the tree would be simply to big). It is enough to build the tree one level after another by adding piece by piece to the board. `moveNumber` counts the steps of the algorithm (e.g. matching pieces on the board)
+
+* at step `moveNumber` create list of all possible next moves,
+
+* choose (`strategy`:`"Rnd"` - random id, `"Max"` - biggest id, `"Min"` - smallest id) one of the possible moves and add it to the solution as step `moveNumber + 1`.
+
+To add piece to the board the algorithm simply follows the `path`. `path` is a vector of fields numbers from 1 to 25 with set order. 
+
+```{r}
+showPath()
+```
+
+You can notice four fields with number `0`. This indicates initial or/and tip pieces on the board. It is possible to change the path. User can pick one from the paths prepared by the author, prepare own path or create random path (`newPath=0`).
+
+```{r}
+changePath(0)
+showPath()
+```
+
+**Note:** I believe it is reasonable to create path using this two simple rules (increasing constraints - decreasing number of possible moves):
+
+1. Add field if it requires more than one matching edge.  
+
+2. Add field to the path in order to obtain situation (or series of situations) from 1.
+
+`possibleMoves` structure is updated by the function `findMoves(field)`. The pattern of the field is being created and compared with unused pieces. A piece matches the pattern if all edges different than `-1` are equal. For example all pieces match `c(-1, -1, -1, -1)`. Additionaly, possible moves are limited by `usedEdges` structure. Edges of a matching piece corresponding to pattern `-1` are being checked if there are available edges. 
+
+```{r}
+# function returns pattern of the piece which match the field
+findMoves(field=path[moveNumber])
+possibleMoves
+
+# reset structure before main algorithm starts
+possibleMoves <- possibleMoves[0, ]
+```
+
+The final step is to call the main function of the package. We start brute-force type algorithm and wait for the solution (eventually it will finish, it could last a few years for 256 pieces puzzle).
+
+```{r}
+system.time(bruteForce())
+showBoard()
+```
+
+**Note:** There are at least two solutions.
+
+## Other Functions
+
+There are two functions to show single piece of the puzzle. The first show piece as a 3 by 3 matrix with `Id` of the piece in the middle and codes of the symbols on edges.
+
+```{r}
+showPiece(9)
+```
+
+The second function show symbols as a mix of png files.
+```{r, fig.align='center', fig.height=3, fig.width=3}
+showPiecePNG(9)
+```
+
+There is bunch of `turnXXX` functions which allow user to rotate the pieces, turn border pieces (`help("turnBorder")`) in order to place border symbols outside the board, turn corner pieces `help("turnCorner")` to match proper corner.
+
+```{r}
+turnPiece90(9)
+showPiece(9)
+```
+
+## Save Progres
+
+The subdirectory `puzzle` is created in `HOME` directory (after calling `init25`). In this folder are kept files `.RData` with current state of the puzzle and partial solution. Files:
+
+* `test.RData` for 25 pieces puzzle,
+
+* `eternity36.RData` for 36 pieces puzzle,
+
+* `eternityii.RData` for 256 pieces puzzle,
+
+* `Solution25.RData` with solution 25 pieces puzzle,
+
+* `Solution36.RData` with solution 36 pieces puzzle,
+
+* `Solution256.RData` with solution 256 pieces puzzle.

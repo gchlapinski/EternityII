@@ -1,0 +1,19 @@
+Package: EternityII
+Type: Package
+Title: EternityII Puzzle
+Version: 0.1.0
+Author: gCoo
+Maintainer: <trach@o2.pl>
+Description: Brute force type algorithm to solve
+    EternityII puzzle.
+License: Free (on your own risk)
+Encoding: UTF-8
+LazyData: true
+Depends: data.table
+Imports: foreach,
+    doSNOW,
+    png
+RoxygenNote: 6.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr
