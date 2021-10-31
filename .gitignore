@@ -1,3 +1,5 @@
 /mvs/
 /.idea/
 /__pycache__/
+.idea/
+__pycache__/
