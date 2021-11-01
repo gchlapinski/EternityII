@@ -15,6 +15,7 @@ now = datetime.datetime.now()
 s = time.time()
 mvNo = 5
 movePath = "./mvs/move" + str(mvNo)
+logFile = "./mvs/log/dayLog.csv"
 finishHim = False
 
 pth = ""
@@ -52,8 +53,14 @@ if not finishHim:
     e.saveState()
 
     t = time.time() - s
-    f = open("./mvs/dayLog.csv", "a")
-    f.write(os.path.basename(file) + "," + str(round(t, 2)) +
+    if os.path.exists(logFile):
+        f = open(logFile, "a")
+    else:
+        f = open(logFile, "a")
+        f.write("FileName,TimeCalc,Time,Step,StepNo,StepMax,StepMin,StepQ50,StepQ100\n")
+
+    f.write(os.path.basename(file) +
+            "," + str(round(t, 2)) +
             "," + now.strftime("%y.%m.%d %H:%M:%S") +
             "," + str(e.step) +
             "," + str(e.stepNo) +

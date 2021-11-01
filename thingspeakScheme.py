@@ -8,7 +8,7 @@ channelID = "857664"
 apiKey = ""
 mqttHost = "mqtt.thingspeak.com"
 
-mvNo = 4
+mvNo = 5
 movePath = "./mvs/move" + str(mvNo)
 logFile = "./mvs/log/dayLog.csv"
 pathList = "./mvs/log/touched.list"
@@ -40,39 +40,46 @@ else:
             else:
                 noActivePath += 1
 
-    with open(logFile) as csvfile:
-        readCSV = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONE)
-        next(readCSV, None)
-
-        listFilesNew = []
+    if os.path.exists(logFile):
+        noUntouched = noActivePath
         timeCalc = 0.0
         noCalc = 0
         avgStepNo = 0
-        maxStep = 0
-
-        for row in readCSV:
-            listFilesNew.append(row[0])
-            timeCalc += float(row[1])/3600
-            noCalc += 1
-            avgStepNo += int(row[3])
-
-            if int(row[5]) > maxStep:
-                maxStep = int(row[5])
-
-    if os.path.exists(pathList):
-        with open(pathList, "rb") as f:
-            listFiles = pickle.load(f)
+        maxStep = mvNo
     else:
-        listFiles = []
+        with open(logFile) as csvfile:
+            readCSV = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONE)
+            next(readCSV, None)
 
-    listFiles = listFiles + listFilesNew
-    listFiles = list(set(listFiles))
+            listFilesNew = []
+            timeCalc = 0.0
+            noCalc = 0
+            avgStepNo = 0
+            maxStep = 0
 
-    with open(pathList, "wb") as f:
-        pickle.dump(listFiles, f, pickle.HIGHEST_PROTOCOL)
+            for row in readCSV:
+                listFilesNew.append(row[0])
+                timeCalc += float(row[1])/3600
+                noCalc += 1
+                avgStepNo += int(row[3])
 
-    noUntouched = noActivePath - len(set(listFiles))
-    avgStepNo = int(avgStepNo / noCalc)
+                if int(row[5]) > maxStep:
+                    maxStep = int(row[5])
+
+        if os.path.exists(pathList):
+            with open(pathList, "rb") as f:
+                listFiles = pickle.load(f)
+        else:
+            listFiles = []
+
+        listFiles = listFiles + listFilesNew
+        listFiles = list(set(listFiles))
+
+        with open(pathList, "wb") as f:
+            pickle.dump(listFiles, f, pickle.HIGHEST_PROTOCOL)
+
+        noUntouched = noActivePath - len(set(listFiles))
+        avgStepNo = int(avgStepNo / noCalc)
 
 # thingspeak:
 # Field1: number of active possibilities
