@@ -1,18 +1,66 @@
-import os.path
+import os
 import time
+import datetime
+import sys
+from math import floor
 from random import choice
 from eternityII import Eternity
 
+if sys.argv[1] == "--mode=client":
+    partOneThird = choice(range(1, 4))
+else:
+    partOneThird = sys.argv[1]
+
+now = datetime.datetime.now()
 s = time.time()
+mvNo = 5
+movePath = "./mvs/move" + str(mvNo)
+finishHim = False
 
-no = choice(range(42))
-fileName = './states/p' + str(no)
+pth = ""
+parts = []
+for r, d, f in os.walk(movePath):
+    for drctr in d:
+        pth = os.path.join(r, drctr)
+        parts.append(pth)
 
-if os.path.exists(fileName + '.state'):
-    e = Eternity(16, 16, "./p0_9.state")
+        if "finito" in pth:
+            finishHim = True
+            break
+
+file = ""
+if not finishHim:
+    states = []
+    for r, d, f in os.walk(movePath):
+        for file in f:
+            if not(file[-4:] == '.fin'):
+                pth = os.path.join(r, file)
+                states.append(pth)
+
+    states.sort()
+
+    if partOneThird == 1:
+        file = choice(states[0:floor(len(states)/3)])
+    elif partOneThird == 2:
+        file = choice(states[(floor(len(states) / 3) + 1):floor(2 * len(states) / 3)])
+    else:
+        file = choice(states[(floor(2 * len(states) / 3) + 1):len(states)])
+
+    e = Eternity(16, 16, file)
     e.loadState()
-    t = choice(range(30, 100, 10))
-    e.bruteForce(30)
+    e.bruteForce()
     e.saveState()
-    e.board2file()
-    e.thUpdate(round(time.time() - s, 2), no)
+
+    t = time.time() - s
+    f = open("./mvs/dayLog.csv", "a")
+    f.write(os.path.basename(file) + "," + str(round(t, 2)) +
+            "," + now.strftime("%y.%m.%d %H:%M:%S") +
+            "," + str(e.step) +
+            "," + str(e.stepNo) +
+            "," + str(e.stepMax) +
+            "," + str(e.stepMin()) +
+            "," + str(e.stepQ(50)) +
+            "," + str(e.stepQ(100)) + "\n")
+    f.close()
+
+    del e

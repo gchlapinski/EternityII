@@ -334,7 +334,7 @@ class Eternity:
                 self.mkMove()
             else:
                 self.saveState()
-                rename(self.fileNameState, self.fileNameState.replace(".state", ".theend"))
+                rename(self.fileNameState, self.fileNameState.replace(".state", ".fin"))
                 finalDir = path.dirname(self.fileNameState)
                 rename(finalDir, finalDir.replace("part", "finito"))
 
