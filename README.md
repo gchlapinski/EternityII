@@ -14,3 +14,7 @@ Algorith idea:
 - More than one possibility can be calculated at the same time 
 
 Warning: It could need a lot of data space, for example if the first move have 40 possibilities the second can have 2k possibilities and the third can have 5k possibilities. Grow is exponential. For example, the 5th move have 500k possibilites (for default path) ~ 8Gb of data.
+
+Thingspeak channel to monitor results of calculation...
+
+https://thingspeak.com/channels/857664
