@@ -6,10 +6,8 @@ from math import floor
 from random import choice
 from eternityII import Eternity
 
-if sys.argv[1] == "--mode=client":
-    partOneThird = choice(range(1, 4))
-else:
-    partOneThird = sys.argv[1]
+os.chdir(os.path.dirname(sys.argv[0]))
+partOneThird = sys.argv[1]
 
 now = datetime.datetime.now()
 s = time.time()
@@ -41,7 +39,7 @@ if not finishHim:
     states.sort()
 
     if partOneThird == 1:
-        file = choice(states[0:floor(len(states)/3)])
+        file = choice(states[0:floor(len(states) / 3)])
     elif partOneThird == 2:
         file = choice(states[(floor(len(states) / 3) + 1):floor(2 * len(states) / 3)])
     else:
