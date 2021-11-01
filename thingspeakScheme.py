@@ -1,16 +1,22 @@
 import os
 import csv
+import sys
 import pickle
+import datetime
 import ssl
 import paho.mqtt.publish as publish
+
+os.chdir(os.path.dirname(sys.argv[0]))
 
 channelID = "857664"
 apiKey = ""
 mqttHost = "mqtt.thingspeak.com"
 
+now = datetime.datetime.now()
 mvNo = 5
 movePath = "./mvs/move" + str(mvNo)
 logFile = "./mvs/log/dayLog.csv"
+logFileAgg = "./mvs/log/aggLog.csv"
 pathList = "./mvs/log/touched.list"
 finishHim = 0
 pth = ""
@@ -40,22 +46,44 @@ else:
             else:
                 noActivePath += 1
 
-    if os.path.exists(logFile):
-        noUntouched = noActivePath
-        timeCalc = 0.0
-        noCalc = 0
-        avgStepNo = 0
-        maxStep = mvNo
+    if os.path.exists(logFileAgg):
+        with open(logFileAgg) as csvfile:
+            readCSV = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONE)
+            next(readCSV, None)
+
+            timeCalcAdd = 0.0
+            noCalcAdd = 0
+            maxStepAdd = 0
+
+            for row in readCSV:
+                timeCalcAdd += float(row[4])
+                noCalcAdd += int(row[5])
+
+                if int(row[6]) > maxStepAdd:
+                    maxStepAdd = int(row[6])
+
     else:
-        with open(logFile) as csvfile:
+        timeCalcAdd = 0.0
+        noCalcAdd = 0
+        maxStepAdd = mvNo
+
+    if not os.path.exists(logFile):
+        noUntouched = noActivePath
+        timeCalc = timeCalcAdd
+        noCalc = noCalcAdd
+        avgStepNo = 0
+        maxStep = maxStepAdd
+    else:
+        os.rename(logFile, logFile + "CPY")
+        with open(logFile + "CPY") as csvfile:
             readCSV = csv.reader(csvfile, delimiter=',', quoting=csv.QUOTE_NONE)
             next(readCSV, None)
 
             listFilesNew = []
-            timeCalc = 0.0
-            noCalc = 0
+            timeCalc = timeCalcAdd
+            noCalc = noCalcAdd
             avgStepNo = 0
-            maxStep = 0
+            maxStep = maxStepAdd
 
             for row in readCSV:
                 listFilesNew.append(row[0])
@@ -80,6 +108,24 @@ else:
 
         noUntouched = noActivePath - len(set(listFiles))
         avgStepNo = int(avgStepNo / noCalc)
+
+        os.remove(logFile + "CPY")
+
+if os.path.exists(logFileAgg):
+    f = open(logFileAgg, "a")
+else:
+    f = open(logFileAgg, "a")
+    f.write("Date,NoActive,NoInactive,NoUntouched,TimeCalc,NoCalc,MaxStep\n")
+
+timeCalc = round(timeCalc, 2)
+f.write(now.strftime("%y.%m.%d") + "," +
+        str(noActivePath) + "," +
+        str(noFinPath) + "," +
+        str(noUntouched) + "," +
+        str(timeCalc) + "," +
+        str(noCalc) + "," +
+        str(maxStep) + "\n")
+f.close()
 
 # thingspeak:
 # Field1: number of active possibilities
