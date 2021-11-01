@@ -1,11 +1,9 @@
 import csv
 import sys
-import ssl
 import pickle
 import copy
 import time
 from random import choice
-import paho.mqtt.publish as publish
 # from multiprocessing.dummy import Pool as ThreadPool
 # import itertools
 from os import path, rename
@@ -415,24 +413,3 @@ class Eternity:
             self.stepMax = tmp.stepMax
             self.boardMax = tmp.boardMax
             self.stepPath = []
-
-    def thUpdate(self, t, no):
-        channelID = "857664"
-        apiKey = "00SWBP7MZE0H7IT8"
-        mqttHost = "mqtt.thingspeak.com"
-
-        tTransport = "websockets"
-        tTLS = {'ca_certs': "/etc/ssl/certs/ca-certificates.crt", 'tls_version': ssl.PROTOCOL_TLSv1}
-        tPort = 443
-
-        mn = self.stepMin()
-
-        topic = "channels/" + channelID + "/publish/" + apiKey
-        tPayload = "field1=" + str(mn) + "&field2=" + str(self.stepMax) \
-                   + "&field3=" + str(self.stepQ(25)) + "&field4=" + str(len(self.moves[mn])) \
-                   + "&field5=" + str(t) + "&field6=" + str(self.stepNo) + "&field7=" + str(no)
-
-        try:
-            publish.single(topic, payload=tPayload, hostname=mqttHost, port=tPort, tls=tTLS, transport=tTransport)
-        finally:
-            print("There was an error while publishing the data.")
