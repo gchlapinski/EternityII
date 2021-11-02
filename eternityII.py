@@ -316,7 +316,7 @@ class Eternity:
                 if path.exists(self.fileNameState):
                     rename(self.fileNameState, self.fileNameState.replace(".state", ".fin"))
 
-                quit()
+                sys.exit()
 
             r = self.boardPath[self.step][0]
             c = self.boardPath[self.step][1]
