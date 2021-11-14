@@ -2,12 +2,12 @@ import os
 import time
 import datetime
 import sys
-from math import floor
 from random import choice
 from eternityII import Eternity
 
 os.chdir(os.path.dirname(sys.argv[0]))
-partOneThird = sys.argv[1]
+partRnd = int(sys.argv[1])
+noParts = int(sys.argv[2])
 
 now = datetime.datetime.now()
 s = time.time()
@@ -21,7 +21,9 @@ parts = []
 for r, d, f in os.walk(movePath):
     for drctr in d:
         pth = os.path.join(r, drctr)
-        parts.append(pth)
+
+        if not(pth[-5:] == 'empty'):
+            parts.append(pth)
 
         if "finito" in pth:
             finishHim = True
@@ -29,28 +31,33 @@ for r, d, f in os.walk(movePath):
 
 file = ""
 if not finishHim:
+    part = choice(parts)
     states = []
-    for r, d, f in os.walk(movePath):
+    for r, d, f in os.walk(part):
         for file in f:
             if file[-4:] != '.fin' and file[-5:] != '.calc':
                 pth = os.path.join(r, file)
                 states.append(pth)
 
-    # states.sort()
-    # k, m = divmod(len(states), noParts)
-    # file = choice(states[((part-1) * k + min(part-1, m)):(part * k + min(part, m))])
+    if len(states) == 0:
+        sys.exit()
 
-    if partOneThird == 1:
-        file = choice(states[0:floor(len(states) / 3)])
-    elif partOneThird == 2:
-        file = choice(states[(floor(len(states) / 3) + 1):floor(2 * len(states) / 3)])
+    k, m = divmod(len(states), noParts)
+    file = choice(states[((partRnd - 1) * k + min(partRnd - 1, m)):(partRnd * k + min(partRnd, m))])
+
+    if not(os.path.exists(file)):
+        sys.exit()
     else:
-        file = choice(states[(floor(2 * len(states) / 3) + 1):len(states)])
+        os.rename(file, file.replace(".state", ".calc"))
+        file = file.replace(".state", ".calc")
 
     e = Eternity(16, 16, file)
+    e.fileNameState = e.fileNameState.replace(".state", "")
     e.loadState()
     e.bruteForce()
+    e.fileNameState = e.fileNameState.replace(".calc", ".state")
     e.saveState()
+    os.remove(file)
 
     t = time.time() - s
     if os.path.exists(logFile):

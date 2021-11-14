@@ -56,8 +56,11 @@ else:
             maxStepAdd = 0
 
             for row in readCSV:
-                timeCalcAdd += float(row[4])
-                noCalcAdd += int(row[5])
+                if float(row[4]) > timeCalcAdd:
+                    timeCalcAdd = float(row[4])
+
+                if int(row[5]) > noCalcAdd:
+                    noCalcAdd = int(row[5])
 
                 if int(row[6]) > maxStepAdd:
                     maxStepAdd = int(row[6])
