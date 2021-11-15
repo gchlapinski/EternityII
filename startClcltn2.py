@@ -12,38 +12,38 @@ noParts = int(sys.argv[2])
 now = datetime.datetime.now()
 s = time.time()
 mvNo = 5
-movePath = "./mvs/move" + str(mvNo)
-logFile = "./mvs/log/dayLog.csv"
+movePath = "/mnt/mvs/move" + str(mvNo)
+logFile = "/mnt/mvs/log/dayLog.csv"
 finishHim = False
 
 pth = ""
-parts = []
-for r, d, f in os.walk(movePath):
-    for drctr in d:
-        pth = os.path.join(r, drctr)
+parts = os.listdir(movePath)
 
-        if not(pth[-5:] == 'empty'):
-            parts.append(pth)
+for prt in parts:
+    pth = os.path.join(movePath, prt)
 
-        if "finito" in pth:
-            finishHim = True
-            break
+    if pth[-5:] == 'empty':
+        parts.remove(prt)
+
+    if "finito" in pth:
+        finishHim = True
+        break
 
 file = ""
 if not finishHim:
-    part = choice(parts)
-    states = []
-    for r, d, f in os.walk(part):
-        for file in f:
-            if file[-4:] != '.fin' and file[-5:] != '.calc':
-                pth = os.path.join(r, file)
-                states.append(pth)
+    part = os.path.join(movePath, choice(parts))
+
+    states = os.listdir(part)
+    for stt in states:
+        if file[-4:] == '.fin' or file[-5:] == '.calc':
+            states.remove(stt)
 
     if len(states) == 0:
         sys.exit()
 
     k, m = divmod(len(states), noParts)
     file = choice(states[((partRnd - 1) * k + min(partRnd - 1, m)):(partRnd * k + min(partRnd, m))])
+    file = os.path.join(part, file)
 
     if not(os.path.exists(file)):
         sys.exit()
