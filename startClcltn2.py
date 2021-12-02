@@ -12,8 +12,8 @@ noParts = int(sys.argv[2])
 now = datetime.datetime.now()
 s = time.time()
 mvNo = 5
-movePath = "/mnt/mvs/move" + str(mvNo)
-logFile = "/mnt/mvs/log/dayLog.csv"
+movePath = "./mvs/move" + str(mvNo)
+logFile = "./mvs/log/dayLog.csv"
 finishHim = False
 
 pth = ""
@@ -54,7 +54,7 @@ if not finishHim:
     e = Eternity(16, 16, file)
     e.fileNameState = e.fileNameState.replace(".state", "")
     e.loadState()
-    e.bruteForce()
+    e.bruteForce(t=100)
     e.fileNameState = e.fileNameState.replace(".calc", ".state")
     e.saveState()
     os.remove(file)
