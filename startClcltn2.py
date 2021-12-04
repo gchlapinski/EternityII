@@ -3,6 +3,7 @@ import time
 import datetime
 import sys
 from random import choice
+from errorException import DeadEnd, FinalSolution
 from eternityII import Eternity
 
 os.chdir(os.path.dirname(sys.argv[0]))
@@ -55,7 +56,12 @@ if not finishHim:
     e.fileNameState = e.fileNameState.replace(".state", "")
     e.loadState()
     e.fileNameState = e.fileNameState.replace(".calc", ".state")
-    e.bruteForce(t=100)
+    try:
+        e.bruteForce(t=100)
+    except DeadEnd:
+        print("another brick in the wall")
+    except FinalSolution:
+        print("final piece")
     e.saveState()
     os.remove(file)
 

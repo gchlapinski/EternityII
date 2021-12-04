@@ -1,13 +1,11 @@
 import csv
-import sys
 import pickle
 import copy
 import time
 from random import choice
-# from multiprocessing.dummy import Pool as ThreadPool
-# import itertools
 from os import path, rename
 
+from errorException import DeadEnd, FinalSolution
 from piece import Piece
 from pieces import Pieces
 from board import Board
@@ -316,7 +314,7 @@ class Eternity:
                 if path.exists(self.fileNameState):
                     rename(self.fileNameState, self.fileNameState.replace(".state", ".fin"))
 
-                sys.exit()
+                raise DeadEnd
 
             r = self.boardPath[self.step][0]
             c = self.boardPath[self.step][1]
@@ -336,7 +334,7 @@ class Eternity:
                 finalDir = path.dirname(self.fileNameState)
                 rename(finalDir, finalDir.replace("part", "finito"))
 
-                sys.exit()
+                raise FinalSolution
 
             if self.step > self.stepMax:
                 self.stepMax = self.step
