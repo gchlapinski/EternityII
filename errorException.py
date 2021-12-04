@@ -11,3 +11,13 @@ class DeadEnd(Error):
 class FinalSolution(Error):
     """solution"""
     pass
+
+
+class FileAlreadyTaken(Error):
+    """solution"""
+    pass
+
+
+class EmptyFolder(Error):
+    """solution"""
+    pass

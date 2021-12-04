@@ -3,7 +3,7 @@ import time
 import datetime
 import sys
 from random import choice
-from errorException import DeadEnd, FinalSolution
+from errorException import DeadEnd, FinalSolution, FileAlreadyTaken, EmptyFolder
 from eternityII import Eternity
 
 os.chdir(os.path.dirname(sys.argv[0]))
@@ -40,14 +40,14 @@ if not finishHim:
             states.remove(stt)
 
     if len(states) == 0:
-        sys.exit()
+        raise EmptyFolder
 
     k, m = divmod(len(states), noParts)
     file = choice(states[((partRnd - 1) * k + min(partRnd - 1, m)):(partRnd * k + min(partRnd, m))])
     file = os.path.join(part, file)
 
     if not(os.path.exists(file)):
-        sys.exit()
+        raise FileAlreadyTaken
     else:
         os.rename(file, file.replace(".state", ".calc"))
         file = file.replace(".state", ".calc")
@@ -55,15 +55,21 @@ if not finishHim:
     e = Eternity(16, 16, file)
     e.fileNameState = e.fileNameState.replace(".state", "")
     e.loadState()
-    e.fileNameState = e.fileNameState.replace(".calc", ".state")
+
+    tmpFlague = True
     try:
         e.bruteForce(t=100)
     except DeadEnd:
+        tmpFlague = False
         print("another brick in the wall")
     except FinalSolution:
+        tmpFlague = False
         print("final piece")
-    e.saveState()
-    os.remove(file)
+
+    if tmpFlague:
+        e.fileNameState = e.fileNameState.replace(".calc", ".state")
+        e.saveState()
+        os.remove(file)
 
     t = time.time() - s
     if os.path.exists(logFile):

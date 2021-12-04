@@ -312,7 +312,7 @@ class Eternity:
 
             if self.step == -1:
                 if path.exists(self.fileNameState):
-                    rename(self.fileNameState, self.fileNameState.replace(".state", ".fin"))
+                    rename(self.fileNameState, self.fileNameState.replace(".calc", ".fin"))
 
                 raise DeadEnd
 
@@ -330,7 +330,7 @@ class Eternity:
                 self.mkMove()
             else:
                 self.saveState()
-                rename(self.fileNameState, self.fileNameState.replace(".state", ".fin"))
+                rename(self.fileNameState, self.fileNameState.replace(".calc", ".fin"))
                 finalDir = path.dirname(self.fileNameState)
                 rename(finalDir, finalDir.replace("part", "finito"))
 
