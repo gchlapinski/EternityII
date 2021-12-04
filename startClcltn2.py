@@ -35,7 +35,7 @@ if not finishHim:
 
     states = os.listdir(part)
     for stt in states:
-        if file[-4:] == '.fin' or file[-5:] == '.calc':
+        if stt[-4:] == '.fin' or stt[-5:] == '.calc':
             states.remove(stt)
 
     if len(states) == 0:
@@ -54,8 +54,8 @@ if not finishHim:
     e = Eternity(16, 16, file)
     e.fileNameState = e.fileNameState.replace(".state", "")
     e.loadState()
-    e.bruteForce(t=100)
     e.fileNameState = e.fileNameState.replace(".calc", ".state")
+    e.bruteForce(t=100)
     e.saveState()
     os.remove(file)
 
