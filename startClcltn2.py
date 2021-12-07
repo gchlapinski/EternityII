@@ -58,7 +58,7 @@ if not finishHim:
 
     tmpFlague = True
     try:
-        e.bruteForce(t=100)
+        e.bruteForce(t=150)
     except DeadEnd:
         tmpFlague = False
         print("another brick in the wall")
