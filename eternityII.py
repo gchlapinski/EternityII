@@ -393,10 +393,10 @@ class Eternity:
     def saveState(self, fileType=0):
         if fileType == 0:
             with open(self.fileNameState, "wb") as f:
-                pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+                pickle.dump(self, f, 4)
         else:
             with open(self.fileNameMax, "wb") as f:
-                pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+                pickle.dump(self, f, 4)
 
     def loadState(self):
         with open(self.fileNameState, "rb") as f:
