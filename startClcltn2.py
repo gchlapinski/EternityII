@@ -35,9 +35,8 @@ if not finishHim:
     part = os.path.join(movePath, choice(parts))
 
     states = os.listdir(part)
-    for stt in states:
-        if stt[-4:] == '.fin' or stt[-5:] == '.calc':
-            states.remove(stt)
+    filtered = list(filter(lambda stt: stt[-4:] == '.fin' or stt[-5:] == '.calc', states))
+    states = [stt for stt in states if stt not in filtered]
 
     if len(states) == 0:
         raise EmptyFolder
